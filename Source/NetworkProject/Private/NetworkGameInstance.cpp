@@ -26,7 +26,7 @@ void UNetworkGameInstance::Init()
 		{
 			CreateSession(mySessionName, 5);
 		}), 2.0f, false);*/
-	
+
 }
 
 // 서버에 세션 생성을 요청하는 함수
@@ -42,7 +42,7 @@ void UNetworkGameInstance::CreateSession(FString roomName, FString hostName, int
 	sessionSettings.bShouldAdvertise = true;
 	sessionSettings.bUseLobbiesIfAvailable = true;
 	sessionSettings.NumPublicConnections = playerCount;
-	
+
 	// 커스텀 설정 값을 추가하기
 	sessionSettings.Set(FName("Room Name"), roomName, EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
 	sessionSettings.Set(FName("Host Name"), hostName, EOnlineDataAdvertisementType::Type::ViaOnlineServiceAndPing);
@@ -80,6 +80,22 @@ void UNetworkGameInstance::OnFoundSessions(bool bWasSuccessful)
 
 	if (bWasSuccessful)
 	{
+		int32 sessionNum = results.Num();
 		UE_LOG(LogTemp, Warning, TEXT("Session Count: %d"), results.Num());
+
+		for (const FOnlineSessionSearchResult& result : results)
+		{
+			FString foundRoomName;
+			result.Session.SessionSettings.Get(FName("Room Name"), foundRoomName);
+			FString foundHostName;
+			result.Session.SessionSettings.Get(FName("Host Name"), foundHostName);
+			
+			int32 maxPlayerCount = result.Session.SessionSettings.NumPublicConnections;
+			int32 currentPlayerCount = maxPlayerCount - result.Session.NumOpenPublicConnections;
+
+			int32 pingSpeed = result.PingInMs;
+
+			UE_LOG(LogTemp, Warning, TEXT("Room Name: %s\nHost Name: %s\nPlayer Count: (%d/%d)\nPing: %d ms\n\n"), *foundRoomName, *foundHostName, currentPlayerCount, maxPlayerCount, pingSpeed);
+		}
 	}
 }
