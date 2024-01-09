@@ -4,7 +4,7 @@
 #include "NetworkGameInstance.h"
 #include "OnlineSubsystem.h"
 #include "OnlineSessionSettings.h"
-
+#include "Online/OnlineSessionNames.h"
 
 void UNetworkGameInstance::Init()
 {
@@ -16,7 +16,7 @@ void UNetworkGameInstance::Init()
 	{
 		// 서버로부터 이벤트 값을 받을 함수를 연결한다.
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnCreatedSession);
-
+		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnFoundSessions);
 	}
 
 	// 내 세션을 서버에 생성 요청을 한다(2초 지연).
@@ -52,9 +52,34 @@ void UNetworkGameInstance::CreateSession(FString roomName, FString hostName, int
 	UE_LOG(LogTemp, Warning, TEXT("Current Platform: %s"), *IOnlineSubsystem::Get()->GetSubsystemName().ToString());
 }
 
+void UNetworkGameInstance::FindSession()
+{
+	// 세션 검색 조건을 설정하기
+	sessionSearch = MakeShareable(new FOnlineSessionSearch());
+	sessionSearch->bIsLanQuery = true;
+	sessionSearch->MaxSearchResults = 10;
+	sessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Type::Equals);
+
+	// 서버에 세션 검색을 요청하기
+	sessionInterface->FindSessions(0, sessionSearch.ToSharedRef());
+}
+
 // 서버로부터 들어온 결과(세션 생성 결과) 이벤트 함수
 void UNetworkGameInstance::OnCreatedSession(FName sessionName, bool bWasSuccessful)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Session Name: %s"), *sessionName.ToString());
 	UE_LOG(LogTemp, Warning, TEXT("Session Create: %s"), bWasSuccessful ? *FString("Success!") : *FString("Failed..."));
+}
+
+// 서버로부터 들어온 결과(세션 검색 결과) 이벤트 함수
+void UNetworkGameInstance::OnFoundSessions(bool bWasSuccessful)
+{
+	TArray<FOnlineSessionSearchResult> results = sessionSearch->SearchResults;
+
+	UE_LOG(LogTemp, Warning, TEXT("Find Results: %s"), bWasSuccessful ? *FString("Success!") : *FString("Failed..."));
+
+	if (bWasSuccessful)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Session Count: %d"), results.Num());
+	}
 }

@@ -18,6 +18,8 @@ void ULoginWidget::NativeConstruct()
 	sl_maxPlayers->SetMaxValue(10.0f);
 	sl_maxPlayers->SetStepSize(1.0f);
 
+	text_maxPlayers->SetText(FText::AsNumber(2));
+
 	// 버튼에 함수 연결(Bind)
 	btn_create->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedCreateButton);
 	btn_back->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedBackButton);
@@ -62,5 +64,8 @@ void ULoginWidget::OnClickedMoveToFind()
 
 void ULoginWidget::OnClickedFindSessionsButton()
 {
-	
+	if (gi != nullptr)
+	{
+		gi->FindSession();
+	}
 }

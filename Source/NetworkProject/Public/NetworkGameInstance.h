@@ -23,9 +23,12 @@ public:
 	IOnlineSessionPtr sessionInterface;
 
 	void CreateSession(FString roomName, FString hostName, int32 playerCount);
+	void FindSession();
 
 private:
 	FName mySessionName = FName("Sessac Session");
+	TSharedPtr<FOnlineSessionSearch> sessionSearch;
 	
 	void OnCreatedSession(FName sessionName, bool bWasSuccessful);
+	void OnFoundSessions(bool bWasSuccessful);
 };
