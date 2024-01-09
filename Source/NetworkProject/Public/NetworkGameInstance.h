@@ -22,12 +22,10 @@ public:
 	//TSharedPtr<IOnlineSession, ESPMode::ThreadSafe> sessionInterface;
 	IOnlineSessionPtr sessionInterface;
 
+	void CreateSession(FString roomName, FString hostName, int32 playerCount);
 
 private:
 	FName mySessionName = FName("Sessac Session");
 	
 	void OnCreatedSession(FName sessionName, bool bWasSuccessful);
-
-
-	void CreateSession(FName sessionName, int32 playerCount);
 };
