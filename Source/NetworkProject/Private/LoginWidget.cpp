@@ -8,6 +8,8 @@
 #include "Components/Slider.h"
 #include "NetworkGameInstance.h"
 #include "Components/WidgetSwitcher.h"
+#include "SessionSlotWidget.h"
+#include "Components/ScrollBox.h"
 
 
 void ULoginWidget::NativeConstruct()
@@ -29,6 +31,14 @@ void ULoginWidget::NativeConstruct()
 	btn_findSessions->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedFindSessionsButton);
 
 	gi = GetGameInstance<UNetworkGameInstance>();
+
+	if (gi != nullptr)
+	{
+		// 세션 찾기 델리게이트에 함수를 연결한다.
+		gi->onCreateSlot.AddDynamic(this, &ULoginWidget::OnSlotCreated);
+		gi->onNewSearchComplete.AddDynamic(this, &ULoginWidget::OnClearScrollBox);
+		gi->onFindButtonToggle.AddDynamic(this, &ULoginWidget::FindButtonOnOff);
+	}
 
 	// 슬라이더 값이 변경될 때마다 실행될 함수 연결
 	sl_maxPlayers->OnValueChanged.AddDynamic(this, &ULoginWidget::OnSliderMoved);
@@ -64,8 +74,33 @@ void ULoginWidget::OnClickedMoveToFind()
 
 void ULoginWidget::OnClickedFindSessionsButton()
 {
+	//btn_findSessions->SetIsEnabled(false);
 	if (gi != nullptr)
 	{
 		gi->FindSession();
 	}
+}
+
+void ULoginWidget::OnSlotCreated(FString roomName, FString hostName, int32 currentPlayers, int32 maxPlayers, int32 ping, int32 sessionIdx)
+{
+	// 서버로부터 받은 정보로 슬롯 위젯을 만들어서 추가한다.
+	if (slotWidget != nullptr)
+	{
+		if (USessionSlotWidget* slot_UI = CreateWidget<USessionSlotWidget>(GetWorld(), slotWidget))
+		{
+			slot_UI->SetSessionInfo(roomName, hostName, currentPlayers, maxPlayers, ping, sessionIdx);
+			sb_roomList->AddChild(slot_UI);
+		}
+	}
+}
+
+void ULoginWidget::OnClearScrollBox()
+{
+	// 기존 슬롯 위젯을 모두 지운다
+	sb_roomList->ClearChildren();
+}
+
+void ULoginWidget::FindButtonOnOff(bool on)
+{
+	btn_findSessions->SetIsEnabled(on);
 }

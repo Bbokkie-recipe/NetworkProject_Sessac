@@ -39,6 +39,9 @@ public:
 	void SetSessionInfo(const FString roomName, const FString hostName, const int32 curPlayer, const int32 maxPlayer, const int32 pingSpeed, const int32 idx);
 
 private:
+	class UNetworkGameInstance* gi;
+	
 	UFUNCTION()
 	void OnClickedJoinButton();
+
 };

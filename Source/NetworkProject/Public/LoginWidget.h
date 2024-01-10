@@ -55,9 +55,13 @@ public:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
 	class UButton* btn_findSessions;
 
-private:
+	UPROPERTY(EditAnywhere, Category="MySettings")
+	TSubclassOf<class USessionSlotWidget> slotWidget;
+
+	UPROPERTY(BlueprintReadOnly)
 	class UNetworkGameInstance* gi;
 
+private:
 	UFUNCTION()
 	void OnClickedCreateButton();
 
@@ -75,4 +79,13 @@ private:
 
 	UFUNCTION()
 	void OnClickedFindSessionsButton();
+
+	UFUNCTION()
+	void OnSlotCreated(FString roomName, FString hostName, int32 currentPlayers, int32 maxPlayers, int32 ping, int32 sessionIdx);
+
+	UFUNCTION()
+	void OnClearScrollBox();
+
+	UFUNCTION()
+	void FindButtonOnOff(bool on);
 };
