@@ -70,6 +70,10 @@ void ULoginWidget::OnClickedMoveToCreate()
 void ULoginWidget::OnClickedMoveToFind()
 {
 	ws_widgetSwitcher->SetActiveWidgetIndex(2);
+	if (gi != nullptr)
+	{
+		gi->FindSession();
+	}
 }
 
 void ULoginWidget::OnClickedFindSessionsButton()
