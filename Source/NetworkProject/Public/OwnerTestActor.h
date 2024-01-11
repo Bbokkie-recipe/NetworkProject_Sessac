@@ -29,9 +29,13 @@ public:
 	UPROPERTY(EditAnyWhere, Category = "MySettings")
 	float maxDistance = 600;
 
+	
+
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
 
 	void PrintInfoLog();
+	class AActor* GetNearestDistance();
+	
 };

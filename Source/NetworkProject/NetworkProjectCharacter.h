@@ -60,7 +60,9 @@ public:
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
+	float elapsedTime = 0;
 
 	void PrintInfoLog();
+	void PrintTimeLog(float DeltaSeconds);
 };
 

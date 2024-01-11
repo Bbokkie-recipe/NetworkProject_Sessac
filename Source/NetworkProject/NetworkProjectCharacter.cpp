@@ -69,17 +69,19 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	PrintInfoLog();
+	//PrintInfoLog();
+	PrintTimeLog(DeltaSeconds);
 }
 
 void ANetworkProjectCharacter::PrintInfoLog()
 {
+	FString characterName = GetActorNameOrLabel();
 	FString localRoleString = UEnum::GetValueAsString<ENetRole>(localRole);
 	FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(remoteRole);
 	FString ownerString = GetOwner() == nullptr ? *FString("No Owner") : *GetOwner()->GetActorNameOrLabel();
 	FString connectionString = GetNetConnection() == nullptr ? *FString("Invalid Connection") : *FString("Valid Connection");
 	
-	FString printString = FString::Printf(TEXT("Local Role: %s\nRemote Role: %s\nOwner: %s\nNet Connection: %s\n"), *localRoleString, *remoteRoleString, *ownerString, *connectionString);
+	FString printString = FString::Printf(TEXT("Player Name: %s\nLocal Role: %s\nRemote Role: %s\nOwner: %s\nNet Connection: %s\n"), *characterName, *localRoleString, *remoteRoleString, *ownerString, *connectionString);
 
 	DrawDebugString(GetWorld(), GetActorLocation(), printString, nullptr, FColor::White, 0, true, 1.0f);
 }
@@ -125,4 +127,11 @@ void ANetworkProjectCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+void ANetworkProjectCharacter::PrintTimeLog(float DeltaSeconds)
+{
+	elapsedTime += DeltaSeconds;
+	//UE_LOG(LogTemp, Warning, TEXT("Elapsed Time: %.2f"), elapsedTime);
+	DrawDebugString(GetWorld(), GetActorLocation(), FString::Printf(TEXT("Elapsed Time: %.2f"), elapsedTime), nullptr, FColor::White, 0, true, 1.0f);
 }
