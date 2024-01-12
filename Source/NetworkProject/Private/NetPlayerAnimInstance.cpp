@@ -39,6 +39,8 @@ void UNetPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	// 현재 방향의 각도를 가져오기
 	degree = GetDegreeOfVelocity(velocity, player->GetActorForwardVector(), player->GetActorRightVector());
 
+	// 플레이어의 총 소유 여부 확인
+	bHasPistol = player->GetOwningWeapon() != nullptr;
 }
 
 float UNetPlayerAnimInstance::GetDegreeOfVelocity(FVector& velocity, FVector forwardVec, FVector rightVec)

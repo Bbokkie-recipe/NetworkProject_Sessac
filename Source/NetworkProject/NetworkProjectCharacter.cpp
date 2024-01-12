@@ -159,5 +159,6 @@ void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	//DOREPLIFETIME(ANetworkProjectCharacter, elapsedTime);
 	DOREPLIFETIME(ANetworkProjectCharacter, jumpCount);
 	DOREPLIFETIME_CONDITION(ANetworkProjectCharacter, elapsedTime, COND_AutonomousOnly);
+	DOREPLIFETIME(ANetworkProjectCharacter, owningWeapon);
 
 }

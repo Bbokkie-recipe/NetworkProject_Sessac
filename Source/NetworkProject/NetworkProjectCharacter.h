@@ -56,11 +56,17 @@ protected:
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE AActor* GetOwningWeapon() { return owningWeapon; }
+	FORCEINLINE void SetOwningWeapon(AActor* weapon) { owningWeapon = weapon; }
+	
 
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
-	
+
+	UPROPERTY(replicated)
+	AActor* owningWeapon;
+
 	UPROPERTY(replicated)
 	float elapsedTime = 0;
 
