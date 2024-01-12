@@ -60,9 +60,15 @@ public:
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
+	
+	UPROPERTY(replicated)
 	float elapsedTime = 0;
+
+	UPROPERTY(replicated)
+	int32 jumpCount = 0;
 
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);
+	void JumpStart();
 };
 
