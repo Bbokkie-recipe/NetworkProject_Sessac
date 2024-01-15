@@ -95,6 +95,7 @@ void ANetworkProjectCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ANetworkProjectCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ANetworkProjectCharacter::Look);
+		EnhancedInputComponent->BindAction(ia_releaseWeapon, ETriggerEvent::Started, this, &ANetworkProjectCharacter::ReleaseWeapon);
 	}
 	else
 	{
@@ -132,7 +133,7 @@ void ANetworkProjectCharacter::Look(const FInputActionValue& Value)
 void ANetworkProjectCharacter::PrintTimeLog(float DeltaSeconds)
 {
 	//if (GetLocalRole() == ENetRole::ROLE_Authority)
-	if(HasAuthority())
+	if (HasAuthority())
 	{
 		elapsedTime += DeltaSeconds;
 	}
@@ -143,14 +144,49 @@ void ANetworkProjectCharacter::PrintTimeLog(float DeltaSeconds)
 
 void ANetworkProjectCharacter::JumpStart()
 {
-	Jump();
-
-	//if(GetLocalRole() == ENetRole::ROLE_AutonomousProxy)
 	if (HasAuthority())
 	{
-		jumpCount++;
+		ServerJump_Implementation();
+	}
+	else
+	{
+		ServerJump();
 	}
 }
+
+// 서버에서만 실행할 내용
+void ANetworkProjectCharacter::ServerJump_Implementation()
+{
+	jumpCount++;
+	MulticastJump();
+
+	//UE_LOG(LogTemp, Warning, TEXT("SeverJump Called!!!"))
+}
+
+// 서버에 요청 시 유효한 요청인지를 검증
+bool ANetworkProjectCharacter::ServerJump_Validate()
+{
+	return true;
+}
+
+// 모든 클라이언트에서 동시에 실행할 내용
+void ANetworkProjectCharacter::MulticastJump_Implementation()
+{
+	Jump();
+	//UE_LOG(LogTemp, Warning, TEXT("MulticastJump Called!!!"))
+}
+
+
+void ANetworkProjectCharacter::ReleaseWeapon(const FInputActionValue& value)
+{
+	//UE_LOG(LogTemp, Warning, TEXT("%s(%d): Release Weapon!"), *FString(__FUNCTION__), __LINE__);
+
+	if (owningWeapon != nullptr)
+	{
+
+	}
+}
+
 
 void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

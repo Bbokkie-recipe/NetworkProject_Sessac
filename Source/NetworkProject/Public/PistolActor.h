@@ -29,4 +29,15 @@ public:
 private:
 	UFUNCTION()
 	void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void GrabPistol(class ANetworkProjectCharacter* player);
+
+	UFUNCTION(Server, Unreliable)
+	void ServerGrabPistol(class ANetworkProjectCharacter* player);
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastGrabPistol(class ANetworkProjectCharacter* player);
+
+	void ReleaseWeapon(class ANetworkProjectCharacter* player);
+
 };

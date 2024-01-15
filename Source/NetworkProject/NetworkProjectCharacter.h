@@ -38,6 +38,9 @@ class ANetworkProjectCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ia_releaseWeapon;
+
 public:
 	ANetworkProjectCharacter();
 	
@@ -64,6 +67,7 @@ private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
 
+	// 복제 변수
 	UPROPERTY(replicated)
 	AActor* owningWeapon;
 
@@ -76,5 +80,15 @@ private:
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);
 	void JumpStart();
+	void ReleaseWeapon(const FInputActionValue& value);
+
+
+	// RPC 함수
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void ServerJump();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastJump();
+
 };
 
