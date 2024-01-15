@@ -11,6 +11,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
+#include "PistolActor.h"
+#include "BattleWidget.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -63,6 +65,16 @@ void ANetworkProjectCharacter::BeginPlay()
 
 	localRole = GetLocalRole();
 	remoteRole = GetRemoteRole();
+
+	if (battleWidget != nullptr && GetController() && GetController()->IsLocalPlayerController())
+	{
+		battleUI = CreateWidget<UBattleWidget>(GetWorld(), battleWidget);
+
+		if (battleUI != nullptr)
+		{
+			battleUI->AddToViewport();
+		}
+	}
 }
 
 void ANetworkProjectCharacter::Tick(float DeltaSeconds)
@@ -71,6 +83,13 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 
 	//PrintInfoLog();
 	PrintTimeLog(DeltaSeconds);
+}
+
+void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float delay)
+{
+	m_Ammo = ammo;
+	m_damagePower = damage;
+	m_attackDelay = delay;
 }
 
 void ANetworkProjectCharacter::PrintInfoLog()
@@ -183,7 +202,7 @@ void ANetworkProjectCharacter::ReleaseWeapon(const FInputActionValue& value)
 
 	if (owningWeapon != nullptr)
 	{
-
+		owningWeapon->ReleaseWeapon(this);
 	}
 }
 
@@ -196,5 +215,7 @@ void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ANetworkProjectCharacter, jumpCount);
 	DOREPLIFETIME_CONDITION(ANetworkProjectCharacter, elapsedTime, COND_AutonomousOnly);
 	DOREPLIFETIME(ANetworkProjectCharacter, owningWeapon);
-
+	DOREPLIFETIME(ANetworkProjectCharacter, m_Ammo);
+	DOREPLIFETIME(ANetworkProjectCharacter, m_damagePower);
+	DOREPLIFETIME(ANetworkProjectCharacter, m_attackDelay);
 }

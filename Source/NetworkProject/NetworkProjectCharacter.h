@@ -59,23 +59,38 @@ protected:
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-	FORCEINLINE AActor* GetOwningWeapon() { return owningWeapon; }
-	FORCEINLINE void SetOwningWeapon(AActor* weapon) { owningWeapon = weapon; }
-	
+	FORCEINLINE class APistolActor* GetOwningWeapon() { return owningWeapon; }
+	FORCEINLINE void SetOwningWeapon(class APistolActor* weapon) { owningWeapon = weapon; }
+	FORCEINLINE int32 GetAmmo() { return m_Ammo; }
+
+	void SetWeaponInfo(int32 ammo, float damage, float delay);
+
+	UPROPERTY(EditAnywhere, Category="MySettings")
+	TSubclassOf<class UBattleWidget> battleWidget;
 
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
+	class UBattleWidget* battleUI;
 
 	// 복제 변수
 	UPROPERTY(replicated)
-	AActor* owningWeapon;
+	class APistolActor* owningWeapon;
 
 	UPROPERTY(replicated)
 	float elapsedTime = 0;
 
 	UPROPERTY(replicated)
 	int32 jumpCount = 0;
+
+	UPROPERTY(replicated)
+	int32 m_Ammo = 0;
+
+	UPROPERTY(replicated)
+	float m_damagePower = 0;
+
+	UPROPERTY(replicated)
+	float m_attackDelay = 0;
 
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);
