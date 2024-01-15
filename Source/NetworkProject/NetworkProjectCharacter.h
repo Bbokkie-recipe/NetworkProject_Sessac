@@ -41,6 +41,9 @@ class ANetworkProjectCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ia_releaseWeapon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ia_Fire;
+
 public:
 	ANetworkProjectCharacter();
 	
@@ -67,6 +70,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category="MySettings")
 	TSubclassOf<class UBattleWidget> battleWidget;
+
+	UPROPERTY(EditAnywhere, Category="MySettings")
+	TArray<UAnimMontage*> fireAnimMontage;
 
 private:
 	enum ENetRole localRole;
@@ -96,7 +102,7 @@ private:
 	void PrintTimeLog(float DeltaSeconds);
 	void JumpStart();
 	void ReleaseWeapon(const FInputActionValue& value);
-
+	void Fire();
 
 	// RPC ÇÔ¼ö
 	UFUNCTION(Server, Unreliable, WithValidation)
@@ -105,5 +111,10 @@ private:
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastJump();
 
+	UFUNCTION(Server, Unreliable)
+	void ServerFire();
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void MulticastFire();
 };
 

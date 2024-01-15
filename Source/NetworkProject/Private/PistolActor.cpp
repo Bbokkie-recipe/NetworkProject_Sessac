@@ -60,7 +60,6 @@ void APistolActor::GrabPistol(ANetworkProjectCharacter* player)
 	{
 		SetOwner(player);
 
-
 		// 로컬 플레이어 컨트롤러일 경우에, 서버 RPC 함수를 실행한다.
 		//if (player->GetController() && player->GetController()->IsLocalPlayerController())
 
@@ -104,6 +103,10 @@ void APistolActor::ServerReleasePistol_Implementation(ANetworkProjectCharacter* 
 {
 	// 플레이어의 owningWeapon 변수를 nullptr로 지정한다.
 	player->SetOwningWeapon(nullptr);
+
+	// 총알 정보 갱신
+	ammo = player->GetAmmo();
+	player->SetWeaponInfo(0, 0, 0);
 
 	MulticastReleasePistol(player);
 

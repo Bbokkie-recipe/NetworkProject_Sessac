@@ -115,6 +115,7 @@ void ANetworkProjectCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ANetworkProjectCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ANetworkProjectCharacter::Look);
 		EnhancedInputComponent->BindAction(ia_releaseWeapon, ETriggerEvent::Started, this, &ANetworkProjectCharacter::ReleaseWeapon);
+		EnhancedInputComponent->BindAction(ia_Fire, ETriggerEvent::Started, this, &ANetworkProjectCharacter::Fire);
 	}
 	else
 	{
@@ -204,6 +205,26 @@ void ANetworkProjectCharacter::ReleaseWeapon(const FInputActionValue& value)
 	{
 		owningWeapon->ReleaseWeapon(this);
 	}
+}
+
+void ANetworkProjectCharacter::Fire()
+{
+	if (owningWeapon != nullptr)
+	{
+		ServerFire();
+	}
+}
+
+void ANetworkProjectCharacter::ServerFire_Implementation()
+{
+	m_Ammo = FMath::Max(0, m_Ammo - 1);
+	MulticastFire();
+}
+
+void ANetworkProjectCharacter::MulticastFire_Implementation()
+{
+	bool bHasAmmo = m_Ammo > 0;
+	PlayAnimMontage(fireAnimMontage[(int32)bHasAmmo]);
 }
 
 
