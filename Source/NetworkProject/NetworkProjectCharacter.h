@@ -78,6 +78,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	int32 maxHealth = 10;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	TSubclassOf<class UCameraShakeBase> hitShake;
 
 	void SetWeaponInfo(int32 ammo, float damage, float delay);
 	void Damaged(int32 dmg);

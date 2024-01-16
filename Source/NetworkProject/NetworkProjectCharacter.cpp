@@ -129,6 +129,13 @@ void ANetworkProjectCharacter::ClientDamaged_Implementation()
 {
 	// 피격 효과 UI 애니메니션 플레이
 	battleUI->PlayHitAnimation();
+
+	// 카메라 쉐이크 효과 주기
+	APlayerController* pc = GetController<APlayerController>();
+	if (pc != nullptr && hitShake != nullptr)
+	{
+		pc->ClientStartCameraShake(hitShake);
+	}
 }
 
 void ANetworkProjectCharacter::PrintInfoLog()
