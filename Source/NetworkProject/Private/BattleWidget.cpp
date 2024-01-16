@@ -24,3 +24,8 @@ void UBattleWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		text_ammo->SetText(FText::AsNumber(ammoCount));
 	}
 }
+
+void UBattleWidget::PlayHitAnimation()
+{
+	PlayAnimationForward(hitAnim);
+}

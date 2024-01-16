@@ -22,6 +22,11 @@ public:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category="MySettings")
 	class UTextBlock* text_ammo;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidgetAnim), Transient, Category = "MySettings")
+	class UWidgetAnimation* hitAnim;
+
+	void PlayHitAnimation();
+
 private:
 	class ANetworkProjectCharacter* player;
 

@@ -128,5 +128,11 @@ private:
 
 	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastFire();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerDamaged(int32 dmg);
+
+	UFUNCTION(Client, Unreliable)
+	void ClientDamaged();
 };
 

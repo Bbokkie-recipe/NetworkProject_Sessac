@@ -112,10 +112,23 @@ void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float del
 
 void ANetworkProjectCharacter::Damaged(int32 dmg)
 {
-	if (HasAuthority())
-	{
-		currentHealth = FMath::Max(0, currentHealth - dmg);
-	}
+	ServerDamaged(dmg);
+}
+
+
+void ANetworkProjectCharacter::ServerDamaged_Implementation(int32 dmg)
+{
+	// 현재 체력 상태 데미지 처리
+	currentHealth = FMath::Max(0, currentHealth - dmg);
+
+	// 해당 클라이언트(로컬)에서 실행할 내용 호출
+	ClientDamaged();
+}
+
+void ANetworkProjectCharacter::ClientDamaged_Implementation()
+{
+	// 피격 효과 UI 애니메니션 플레이
+	battleUI->PlayHitAnimation();
 }
 
 void ANetworkProjectCharacter::PrintInfoLog()
@@ -240,6 +253,7 @@ void ANetworkProjectCharacter::Fire()
 		ServerFire();
 	}
 }
+
 
 void ANetworkProjectCharacter::ServerFire_Implementation()
 {
