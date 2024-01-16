@@ -26,11 +26,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	class UStaticMeshComponent* meshComp;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	TSubclassOf<class ABulletActor> bullet_bp;
+
 	int32 ammo = 10;
 	float damagePower = 2.0f;
 	float attackDelay = 1.0f;
 
 	void ReleaseWeapon(class ANetworkProjectCharacter* player);
+	void Fire(class ANetworkProjectCharacter* player);
 
 private:
 	UFUNCTION()

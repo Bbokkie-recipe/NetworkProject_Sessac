@@ -65,8 +65,9 @@ public:
 	FORCEINLINE class APistolActor* GetOwningWeapon() { return owningWeapon; }
 	FORCEINLINE void SetOwningWeapon(class APistolActor* weapon) { owningWeapon = weapon; }
 	FORCEINLINE int32 GetAmmo() { return m_Ammo; }
-
-	void SetWeaponInfo(int32 ammo, float damage, float delay);
+	
+	UPROPERTY(EditAnywhere, Category="MyComponents")
+	class UWidgetComponent* playerInfoWidgetComp;
 
 	UPROPERTY(EditAnywhere, Category="MySettings")
 	TSubclassOf<class UBattleWidget> battleWidget;
@@ -74,10 +75,18 @@ public:
 	UPROPERTY(EditAnywhere, Category="MySettings")
 	TArray<UAnimMontage*> fireAnimMontage;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
+	int32 maxHealth = 10;
+
+
+	void SetWeaponInfo(int32 ammo, float damage, float delay);
+	void Damaged(int32 dmg);
+
 private:
 	enum ENetRole localRole;
 	enum ENetRole remoteRole;
 	class UBattleWidget* battleUI;
+	class UPlayerInfoWidget* info_UI;
 
 	// 복제 변수
 	UPROPERTY(replicated)
@@ -97,6 +106,9 @@ private:
 
 	UPROPERTY(replicated)
 	float m_attackDelay = 0;
+
+	UPROPERTY(replicated)
+	int32 currentHealth = 0;
 
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);

@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "../NetworkProjectCharacter.h"
+#include "BulletActor.h"
 
 
 APistolActor::APistolActor()
@@ -84,7 +85,7 @@ void APistolActor::MulticastGrabPistol_Implementation(ANetworkProjectCharacter* 
 	boxComp->SetSimulatePhysics(false);
 	AttachToComponent(player->GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName("PistolSocket"));
 	boxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	// 총의 폰 타입에 대한 충돌 응답을 Ignore로 변경한다.
 	boxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 }
@@ -96,6 +97,22 @@ void APistolActor::ReleaseWeapon(ANetworkProjectCharacter* player)
 	if (player != nullptr)
 	{
 		ServerReleasePistol(player);
+	}
+}
+
+void APistolActor::Fire(ANetworkProjectCharacter* player)
+{
+	if (bullet_bp != nullptr && GetOwner()->HasAuthority())
+	{
+		FActorSpawnParameters params;
+		params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ABulletActor* bullet = GetWorld()->SpawnActor<ABulletActor>(bullet_bp, meshComp->GetSocketLocation(FName("FirePosition")), meshComp->GetSocketRotation(FName("FirePosition")), params);
+
+		if (bullet != nullptr)
+		{
+			bullet->SetOwner(player);
+			bullet->damage = damagePower;
+		}
 	}
 }
 

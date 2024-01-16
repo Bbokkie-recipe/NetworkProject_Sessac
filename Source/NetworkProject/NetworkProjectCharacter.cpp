@@ -13,6 +13,9 @@
 #include "Net/UnrealNetwork.h"
 #include "PistolActor.h"
 #include "BattleWidget.h"
+#include "Components/WidgetComponent.h"
+#include "PlayerInfoWidget.h"
+#include "Components/ProgressBar.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -47,6 +50,10 @@ ANetworkProjectCharacter::ANetworkProjectCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	playerInfoWidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("Info Widget"));
+	playerInfoWidgetComp->SetupAttachment(GetMesh());
+	playerInfoWidgetComp->SetDrawSize(FVector2D(200));
+
 	bReplicates = true;
 	SetReplicateMovement(true);
 }
@@ -65,6 +72,7 @@ void ANetworkProjectCharacter::BeginPlay()
 
 	localRole = GetLocalRole();
 	remoteRole = GetRemoteRole();
+	info_UI = Cast<UPlayerInfoWidget>(playerInfoWidgetComp->GetWidget());
 
 	if (battleWidget != nullptr && GetController() && GetController()->IsLocalPlayerController())
 	{
@@ -75,6 +83,11 @@ void ANetworkProjectCharacter::BeginPlay()
 			battleUI->AddToViewport();
 		}
 	}
+
+	if (HasAuthority())
+	{
+		currentHealth = maxHealth;
+	}
 }
 
 void ANetworkProjectCharacter::Tick(float DeltaSeconds)
@@ -83,6 +96,11 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 
 	//PrintInfoLog();
 	PrintTimeLog(DeltaSeconds);
+
+	if (info_UI != nullptr)
+	{
+		info_UI->pb_health->SetPercent((float)currentHealth / (float)maxHealth);
+	}
 }
 
 void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float delay)
@@ -90,6 +108,14 @@ void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float del
 	m_Ammo = ammo;
 	m_damagePower = damage;
 	m_attackDelay = delay;
+}
+
+void ANetworkProjectCharacter::Damaged(int32 dmg)
+{
+	if (HasAuthority())
+	{
+		currentHealth = FMath::Max(0, currentHealth - dmg);
+	}
 }
 
 void ANetworkProjectCharacter::PrintInfoLog()
@@ -217,7 +243,11 @@ void ANetworkProjectCharacter::Fire()
 
 void ANetworkProjectCharacter::ServerFire_Implementation()
 {
-	m_Ammo = FMath::Max(0, m_Ammo - 1);
+	if (m_Ammo > 0)
+	{
+		owningWeapon->Fire(this);
+		m_Ammo = FMath::Max(0, m_Ammo - 1);
+	}
 	MulticastFire();
 }
 
@@ -239,4 +269,5 @@ void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ANetworkProjectCharacter, m_Ammo);
 	DOREPLIFETIME(ANetworkProjectCharacter, m_damagePower);
 	DOREPLIFETIME(ANetworkProjectCharacter, m_attackDelay);
+	DOREPLIFETIME(ANetworkProjectCharacter, currentHealth);
 }
