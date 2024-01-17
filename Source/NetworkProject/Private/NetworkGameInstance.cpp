@@ -19,6 +19,7 @@ void UNetworkGameInstance::Init()
 		sessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnCreatedSession);
 		sessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnFoundSessions);
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnJoinedSession);
+		sessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UNetworkGameInstance::OnDestroyedSession);
 	}
 
 	// 내 세션을 서버에 생성 요청을 한다(2초 지연).
@@ -121,6 +122,11 @@ void UNetworkGameInstance::JoinSession(int32 roomNumber)
 	sessionInterface->JoinSession(0, mySessionName, sessionSearch->SearchResults[roomNumber]);
 }
 
+void UNetworkGameInstance::ExitSession()
+{
+	sessionInterface->DestroySession(mySessionName);
+}
+
 void UNetworkGameInstance::OnJoinedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Joined Session: %s"), *sessionName.ToString());
@@ -157,5 +163,20 @@ void UNetworkGameInstance::OnJoinedSession(FName sessionName, EOnJoinSessionComp
 		break;
 	default:
 		break;
+	}
+}
+
+void UNetworkGameInstance::OnDestroyedSession(FName sessionName, bool bWasSuccesful)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Destory Session: %s"), bWasSuccesful ? *FString("Success!") : *FString("Failed..."));
+
+	if (bWasSuccesful)
+	{
+		APlayerController* pc = GetWorld()->GetFirstPlayerController();
+
+		if (pc != nullptr)
+		{
+			pc->ClientTravel(FString("/Game/Maps/LobbyLevel"), ETravelType::TRAVEL_Absolute);
+		}
 	}
 }

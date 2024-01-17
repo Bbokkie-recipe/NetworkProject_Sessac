@@ -62,9 +62,11 @@ void ANetworkProjectCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	pc = GetController<APlayerController>();
+
+	if (pc != nullptr)
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(pc->GetLocalPlayer()))
 		{
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
@@ -101,6 +103,13 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 	{
 		info_UI->pb_health->SetPercent((float)currentHealth / (float)maxHealth);
 	}
+
+	// 죽음 상태 체크
+	if (!bIsDead &&  currentHealth <= 0)
+	{
+		bIsDead = true;
+		ServerDieProcess();
+	}
 }
 
 void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float delay)
@@ -110,11 +119,12 @@ void ANetworkProjectCharacter::SetWeaponInfo(int32 ammo, float damage, float del
 	m_attackDelay = delay;
 }
 
+#pragma region DamageRPC
+
 void ANetworkProjectCharacter::Damaged(int32 dmg)
 {
 	ServerDamaged(dmg);
 }
-
 
 void ANetworkProjectCharacter::ServerDamaged_Implementation(int32 dmg)
 {
@@ -131,12 +141,14 @@ void ANetworkProjectCharacter::ClientDamaged_Implementation()
 	battleUI->PlayHitAnimation();
 
 	// 카메라 쉐이크 효과 주기
-	APlayerController* pc = GetController<APlayerController>();
 	if (pc != nullptr && hitShake != nullptr)
 	{
 		pc->ClientStartCameraShake(hitShake);
 	}
 }
+#pragma endregion
+
+#pragma region Status Log
 
 void ANetworkProjectCharacter::PrintInfoLog()
 {
@@ -151,6 +163,20 @@ void ANetworkProjectCharacter::PrintInfoLog()
 	DrawDebugString(GetWorld(), GetActorLocation(), printString, nullptr, FColor::White, 0, true, 1.0f);
 }
 
+void ANetworkProjectCharacter::PrintTimeLog(float DeltaSeconds)
+{
+	//if (GetLocalRole() == ENetRole::ROLE_Authority)
+	if (HasAuthority())
+	{
+		elapsedTime += DeltaSeconds;
+	}
+
+	//UE_LOG(LogTemp, Warning, TEXT("Elapsed Time: %.2f"), elapsedTime);
+	DrawDebugString(GetWorld(), GetActorLocation(), FString::Printf(TEXT("Elapsed Time: %.2f\nJump Count: %d"), elapsedTime, jumpCount), nullptr, FColor::White, 0, true, 1.0f);
+}
+#pragma endregion
+
+#pragma region InputSetup
 
 void ANetworkProjectCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -171,7 +197,9 @@ void ANetworkProjectCharacter::SetupPlayerInputComponent(UInputComponent* Player
 
 void ANetworkProjectCharacter::Move(const FInputActionValue& Value)
 {
-	FVector2D MovementVector = Value.Get<FVector2D>();
+	//if(bIsDead) return;
+
+ 	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -195,18 +223,9 @@ void ANetworkProjectCharacter::Look(const FInputActionValue& Value)
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
 }
+#pragma endregion
 
-void ANetworkProjectCharacter::PrintTimeLog(float DeltaSeconds)
-{
-	//if (GetLocalRole() == ENetRole::ROLE_Authority)
-	if (HasAuthority())
-	{
-		elapsedTime += DeltaSeconds;
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Elapsed Time: %.2f"), elapsedTime);
-	DrawDebugString(GetWorld(), GetActorLocation(), FString::Printf(TEXT("Elapsed Time: %.2f\nJump Count: %d"), elapsedTime, jumpCount), nullptr, FColor::White, 0, true, 1.0f);
-}
+#pragma region JumpRPC
 
 void ANetworkProjectCharacter::JumpStart()
 {
@@ -241,9 +260,10 @@ void ANetworkProjectCharacter::MulticastJump_Implementation()
 	Jump();
 	//UE_LOG(LogTemp, Warning, TEXT("MulticastJump Called!!!"))
 }
+#pragma endregion
 
 
-void ANetworkProjectCharacter::ReleaseWeapon(const FInputActionValue& value)
+void ANetworkProjectCharacter::ReleaseWeapon()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s(%d): Release Weapon!"), *FString(__FUNCTION__), __LINE__);
 
@@ -253,11 +273,16 @@ void ANetworkProjectCharacter::ReleaseWeapon(const FInputActionValue& value)
 	}
 }
 
+#pragma region FireRPC
+
 void ANetworkProjectCharacter::Fire()
 {
 	if (owningWeapon != nullptr)
 	{
-		ServerFire();
+		if (!GetWorldTimerManager().IsTimerActive(fireCooltime))
+		{
+			ServerFire();
+		}
 	}
 }
 
@@ -276,6 +301,47 @@ void ANetworkProjectCharacter::MulticastFire_Implementation()
 {
 	bool bHasAmmo = m_Ammo > 0;
 	PlayAnimMontage(fireAnimMontage[(int32)bHasAmmo]);
+	GetWorldTimerManager().SetTimer(fireCooltime, m_attackDelay, false);
+}
+
+#pragma endregion
+
+
+void ANetworkProjectCharacter::ServerDieProcess_Implementation()
+{
+	MulticastDieProcess();
+}
+
+void ANetworkProjectCharacter::MulticastDieProcess_Implementation()
+{
+	// 입력 방지
+	GetCharacterMovement()->DisableMovement();
+	bUseControllerRotationYaw = false;
+	CameraBoom->bUsePawnControlRotation = false;
+
+	// 총을 내려놓는다.
+	ReleaseWeapon();
+
+	// 충돌 처리 비활성화
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	//GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	if (pc != nullptr && pc->IsLocalPlayerController())
+	{
+		FTimerHandle dieEffectHandler;
+		GetWorldTimerManager().SetTimer(dieEffectHandler, FTimerDelegate::CreateLambda([&]() {
+			
+			// 세션 나가기 버튼을 화면에 표시한다.
+			battleUI->ShowButtons();
+			pc->SetShowMouseCursor(true);
+			pc->SetInputMode(FInputModeUIOnly());
+
+			// 화면을 흑백으로 후 처리한다.
+			FollowCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 0.5f);
+			}), 1.1f, false);
+		
+	}
 }
 
 

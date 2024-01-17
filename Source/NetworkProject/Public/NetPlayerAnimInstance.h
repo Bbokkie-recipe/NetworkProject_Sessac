@@ -27,6 +27,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
 	float speed = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "MySettings")
+	bool bIsDead = false;
+
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 

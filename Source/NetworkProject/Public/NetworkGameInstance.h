@@ -41,6 +41,7 @@ public:
 	void CreateSession(FString roomName, FString hostName, int32 playerCount);
 	void FindSession();
 	void JoinSession(int32 roomNumber);
+	void ExitSession();
 
 private:
 	FName mySessionName = FName("Sessac Session");
@@ -49,4 +50,5 @@ private:
 	void OnCreatedSession(FName sessionName, bool bWasSuccessful);
 	void OnFoundSessions(bool bWasSuccessful);
 	void OnJoinedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result);
+	void OnDestroyedSession(FName sessionName, bool bWasSuccesful);
 };

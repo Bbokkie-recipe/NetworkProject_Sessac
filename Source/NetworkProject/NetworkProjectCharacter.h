@@ -65,6 +65,7 @@ public:
 	FORCEINLINE class APistolActor* GetOwningWeapon() { return owningWeapon; }
 	FORCEINLINE void SetOwningWeapon(class APistolActor* weapon) { owningWeapon = weapon; }
 	FORCEINLINE int32 GetAmmo() { return m_Ammo; }
+	FORCEINLINE bool GetDeadState() { return bIsDead; }
 	
 	UPROPERTY(EditAnywhere, Category="MyComponents")
 	class UWidgetComponent* playerInfoWidgetComp;
@@ -89,6 +90,9 @@ private:
 	enum ENetRole remoteRole;
 	class UBattleWidget* battleUI;
 	class UPlayerInfoWidget* info_UI;
+	FTimerHandle fireCooltime;
+	bool bIsDead = false;
+	class APlayerController* pc;
 
 	// 복제 변수
 	UPROPERTY(replicated)
@@ -115,7 +119,7 @@ private:
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);
 	void JumpStart();
-	void ReleaseWeapon(const FInputActionValue& value);
+	void ReleaseWeapon();
 	void Fire();
 
 	// RPC 함수
@@ -136,5 +140,12 @@ private:
 
 	UFUNCTION(Client, Unreliable)
 	void ClientDamaged();
+
+	UFUNCTION(Server, Reliable)
+	void ServerDieProcess();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDieProcess();
+
 };
 

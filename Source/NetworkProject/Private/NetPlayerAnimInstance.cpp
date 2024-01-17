@@ -41,6 +41,8 @@ void UNetPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	// 플레이어의 총 소유 여부 확인
 	bHasPistol = player->GetOwningWeapon() != nullptr;
+
+	bIsDead = player->GetDeadState();
 }
 
 float UNetPlayerAnimInstance::GetDegreeOfVelocity(FVector& velocity, FVector forwardVec, FVector rightVec)

@@ -4,6 +4,8 @@
 #include "BattleWidget.h"
 #include "Components/TextBlock.h"
 #include "../NetworkProjectCharacter.h"
+#include "Components/Button.h"
+#include "NetworkGameInstance.h"
 
 
 void UBattleWidget::NativeConstruct()
@@ -12,6 +14,8 @@ void UBattleWidget::NativeConstruct()
 
 	player = GetOwningPlayerPawn<ANetworkProjectCharacter>();
 	text_ammo->SetText(FText::AsNumber(0));
+
+	btn_exitSession->OnClicked.AddDynamic(this, &UBattleWidget::OnExitSession);
 }
 
 void UBattleWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -28,4 +32,14 @@ void UBattleWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 void UBattleWidget::PlayHitAnimation()
 {
 	PlayAnimationForward(hitAnim);
+}
+
+void UBattleWidget::ShowButtons()
+{
+	btn_exitSession->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UBattleWidget::OnExitSession()
+{
+	GetGameInstance<UNetworkGameInstance>()->ExitSession();
 }
