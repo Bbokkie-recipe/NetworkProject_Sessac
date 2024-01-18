@@ -42,6 +42,8 @@ public:
 	void FindSession();
 	void JoinSession(int32 roomNumber);
 	void ExitSession();
+	void SetSessionName(FString name);
+	FORCEINLINE FString GetSessionName() { return mySessionName.ToString(); }
 
 private:
 	FName mySessionName = FName("Sessac Session");

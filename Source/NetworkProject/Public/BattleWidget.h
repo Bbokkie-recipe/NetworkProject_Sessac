@@ -23,6 +23,9 @@ public:
 	class UTextBlock* text_ammo;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
+	class UTextBlock* text_PlayerList;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
 	class UButton* btn_exitSession;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidgetAnim), Transient, Category = "MySettings")
@@ -30,9 +33,11 @@ public:
 
 	void PlayHitAnimation();
 	void ShowButtons();
+	void AddPlayerList(FString playerName);
 
 private:
 	class ANetworkProjectCharacter* player;
+	FString playerList;
 
 	UFUNCTION()
 	void OnExitSession();

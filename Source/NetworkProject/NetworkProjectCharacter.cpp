@@ -96,8 +96,8 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	//PrintInfoLog();
-	PrintTimeLog(DeltaSeconds);
+	PrintInfoLog();
+	//PrintTimeLog(DeltaSeconds);
 
 	if (info_UI != nullptr)
 	{
@@ -152,13 +152,23 @@ void ANetworkProjectCharacter::ClientDamaged_Implementation()
 
 void ANetworkProjectCharacter::PrintInfoLog()
 {
-	FString characterName = GetActorNameOrLabel();
-	FString localRoleString = UEnum::GetValueAsString<ENetRole>(localRole);
-	FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(remoteRole);
-	FString ownerString = GetOwner() == nullptr ? *FString("No Owner") : *GetOwner()->GetActorNameOrLabel();
-	FString connectionString = GetNetConnection() == nullptr ? *FString("Invalid Connection") : *FString("Valid Connection");
+	// 1. 네트워크 롤 확인용 로그
+	//FString characterName = GetActorNameOrLabel();
+	//FString localRoleString = UEnum::GetValueAsString<ENetRole>(localRole);
+	//FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(remoteRole);
+	//FString ownerString = GetOwner() == nullptr ? *FString("No Owner") : *GetOwner()->GetActorNameOrLabel();
+	//FString connectionString = GetNetConnection() == nullptr ? *FString("Invalid Connection") : *FString("Valid Connection");
 
-	FString printString = FString::Printf(TEXT("Player Name: %s\nLocal Role: %s\nRemote Role: %s\nOwner: %s\nNet Connection: %s\n"), *characterName, *localRoleString, *remoteRoleString, *ownerString, *connectionString);
+	//FString printString = FString::Printf(TEXT("Player Name: %s\nLocal Role: %s\nRemote Role: %s\nOwner: %s\nNet Connection: %s\n"), *characterName, *localRoleString, *remoteRoleString, *ownerString, *connectionString);
+
+	// 2. 게임프레임워크 확인용 로그
+	FString gameModeString = GetWorld()->GetAuthGameMode() != nullptr ? *FString("Valid") : *FString("Invalid");
+	FString gameStateString = GetWorld()->GetGameState() != nullptr ? *FString("Valid") : *FString("Invalid");
+	FString playerStateString = GetPlayerState() != nullptr ? *FString("Valid") : *FString("Invalid");
+	AHUD* hud = GetController<APlayerController>() != nullptr ? GetController<APlayerController>()->GetHUD() : nullptr;
+	FString HUDString = hud != nullptr ? *FString("Valid") : *FString("Invalid");
+
+	FString printString = FString::Printf(TEXT("GameMode: %s\nGameState: %s\nPlayerSate: %s\nHUD: %s"), *gameModeString, *gameStateString, *playerStateString, *HUDString);
 
 	DrawDebugString(GetWorld(), GetActorLocation(), printString, nullptr, FColor::White, 0, true, 1.0f);
 }
@@ -243,6 +253,7 @@ void ANetworkProjectCharacter::JumpStart()
 void ANetworkProjectCharacter::ServerJump_Implementation()
 {
 	jumpCount++;
+	repJumpCount++;
 	MulticastJump();
 
 	//UE_LOG(LogTemp, Warning, TEXT("SeverJump Called!!!"))
@@ -286,6 +297,16 @@ void ANetworkProjectCharacter::Fire()
 	}
 }
 
+// 변수 복제로 값이 변경될 때마다 실행될 함수
+void ANetworkProjectCharacter::OnRep_JumpEffect()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Replicated Call Function!!"));
+	if (battleUI != nullptr)
+	{
+		battleUI->PlayHitAnimation();
+	}
+}
+
 
 void ANetworkProjectCharacter::ServerFire_Implementation()
 {
@@ -306,6 +327,7 @@ void ANetworkProjectCharacter::MulticastFire_Implementation()
 
 #pragma endregion
 
+#pragma region Die Process RPC
 
 void ANetworkProjectCharacter::ServerDieProcess_Implementation()
 {
@@ -343,7 +365,7 @@ void ANetworkProjectCharacter::MulticastDieProcess_Implementation()
 		
 	}
 }
-
+#pragma endregion
 
 void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -357,4 +379,5 @@ void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ANetworkProjectCharacter, m_damagePower);
 	DOREPLIFETIME(ANetworkProjectCharacter, m_attackDelay);
 	DOREPLIFETIME(ANetworkProjectCharacter, currentHealth);
+	DOREPLIFETIME(ANetworkProjectCharacter, repJumpCount);
 }

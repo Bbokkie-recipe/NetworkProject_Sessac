@@ -116,11 +116,17 @@ private:
 	UPROPERTY(replicated)
 	int32 currentHealth = 0;
 
+	UPROPERTY(ReplicatedUsing = OnRep_JumpEffect)
+	int32 repJumpCount = 0;
+
 	void PrintInfoLog();
 	void PrintTimeLog(float DeltaSeconds);
 	void JumpStart();
 	void ReleaseWeapon();
 	void Fire();
+	
+	UFUNCTION()
+	void OnRep_JumpEffect();
 
 	// RPC ÇÔ¼ö
 	UFUNCTION(Server, Unreliable, WithValidation)

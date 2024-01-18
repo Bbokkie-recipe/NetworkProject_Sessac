@@ -127,6 +127,11 @@ void UNetworkGameInstance::ExitSession()
 	sessionInterface->DestroySession(mySessionName);
 }
 
+void UNetworkGameInstance::SetSessionName(FString name)
+{
+	mySessionName = FName(*name);
+}
+
 void UNetworkGameInstance::OnJoinedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Joined Session: %s"), *sessionName.ToString());

@@ -29,6 +29,7 @@ void ULoginWidget::NativeConstruct()
 	btn_MoveToFindPanel->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedMoveToFind);
 	btn_back2->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedBackButton);
 	btn_findSessions->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedFindSessionsButton);
+	btn_next->OnClicked.AddDynamic(this, &ULoginWidget::SetUserNameAndNext);
 
 	gi = GetGameInstance<UNetworkGameInstance>();
 
@@ -54,7 +55,7 @@ void ULoginWidget::OnClickedCreateButton()
 
 void ULoginWidget::OnClickedBackButton()
 {
-	ws_widgetSwitcher->SetActiveWidgetIndex(0);
+	ws_widgetSwitcher->SetActiveWidgetIndex(1);
 }
 
 void ULoginWidget::OnSliderMoved(float value)
@@ -64,12 +65,12 @@ void ULoginWidget::OnSliderMoved(float value)
 
 void ULoginWidget::OnClickedMoveToCreate()
 {
-	ws_widgetSwitcher->SetActiveWidgetIndex(1);
+	ws_widgetSwitcher->SetActiveWidgetIndex(2);
 }
 
 void ULoginWidget::OnClickedMoveToFind()
 {
-	ws_widgetSwitcher->SetActiveWidgetIndex(2);
+	ws_widgetSwitcher->SetActiveWidgetIndex(3);
 	if (gi != nullptr)
 	{
 		gi->FindSession();
@@ -107,4 +108,12 @@ void ULoginWidget::OnClearScrollBox()
 void ULoginWidget::FindButtonOnOff(bool on)
 {
 	btn_findSessions->SetIsEnabled(on);
+}
+
+void ULoginWidget::SetUserNameAndNext()
+{
+	// 게임 인스턴스에 입력한 이름을 저장한다.
+	gi->SetSessionName(editText_userName->GetText().ToString());
+
+	ws_widgetSwitcher->SetActiveWidgetIndex(1);
 }
