@@ -14,4 +14,9 @@ class NETWORKPROJECT_API ANetworkGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 	
+public:
+	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
+
+private:
+	int32 index = 0;
 };
