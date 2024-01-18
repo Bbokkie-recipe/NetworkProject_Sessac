@@ -33,7 +33,7 @@ public:
 
 	void PlayHitAnimation();
 	void ShowButtons();
-	void AddPlayerList(FString playerName);
+	void AddPlayerList(FString playerName, float score);
 
 private:
 	class ANetworkProjectCharacter* player;

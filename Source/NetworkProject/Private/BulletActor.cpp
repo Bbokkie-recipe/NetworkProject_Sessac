@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "../NetworkProjectCharacter.h"
+#include "NetPlayerState.h"
 
 
 ABulletActor::ABulletActor()
@@ -57,6 +58,10 @@ void ABulletActor::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* O
 		if (ANetworkProjectCharacter* player = Cast<ANetworkProjectCharacter>(OtherActor))
 		{
 			player->Damaged(damage);
+
+			// 총알 주인 플레이어의 PlayerState의 score 변수의 값을 10점 추가한다.
+			ANetPlayerState* ownerPlayer = Cast<ANetworkProjectCharacter>(GetOwner())->GetPlayerState<ANetPlayerState>();
+			ownerPlayer->SetScore(ownerPlayer->GetScore() + 10);
 		}
 		Destroy();
 	}

@@ -24,4 +24,6 @@ void ANetPlayerState::ServerSetMyName_Implementation(const FString& name)
 {
 	// PlayerState에 구현되어 있는 privateName변수의 값을 갱신한다.
 	SetPlayerName(name);
+
+	
 }

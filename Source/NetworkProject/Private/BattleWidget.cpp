@@ -6,7 +6,7 @@
 #include "../NetworkProjectCharacter.h"
 #include "Components/Button.h"
 #include "NetworkGameInstance.h"
-#include "GameFramework/GameStateBase.h"
+#include "NetGameStateBase.h"
 #include "GameFramework/PlayerState.h"
 
 
@@ -31,12 +31,12 @@ void UBattleWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 		int32 ammoCount = player->GetAmmo();
 		text_ammo->SetText(FText::AsNumber(ammoCount));
 
-		TArray<APlayerState*> players = GetWorld()->GetGameState()->PlayerArray;
+		TArray<APlayerState*> players = GetWorld()->GetGameState<ANetGameStateBase>()->GetMyPlayerList();
 		playerList = "";
 
 		for (APlayerState* ps : players)
 		{
-			AddPlayerList(ps->GetPlayerName());
+			AddPlayerList(ps->GetPlayerName(), ps->GetScore());
 		}
 	}
 }
@@ -51,9 +51,9 @@ void UBattleWidget::ShowButtons()
 	btn_exitSession->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UBattleWidget::AddPlayerList(FString playerName)
+void UBattleWidget::AddPlayerList(FString playerName, float score)
 {
-	playerList.Append(FString::Printf(TEXT("%s\n"), *playerName));
+	playerList.Append(FString::Printf(TEXT("%s : %d\n"), *playerName, (int32)score));
 	text_PlayerList->SetText(FText::FromString(playerList));
 }
 
