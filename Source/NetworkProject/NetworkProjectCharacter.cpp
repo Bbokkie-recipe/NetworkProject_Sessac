@@ -275,6 +275,7 @@ void ANetworkProjectCharacter::MulticastJump_Implementation()
 }
 #pragma endregion
 
+#pragma region ReleaseWeapon
 
 void ANetworkProjectCharacter::ReleaseWeapon()
 {
@@ -285,6 +286,8 @@ void ANetworkProjectCharacter::ReleaseWeapon()
 		owningWeapon->ReleaseWeapon(this);
 	}
 }
+
+#pragma endregion
 
 #pragma region VoiceChat
 
@@ -301,17 +304,6 @@ void ANetworkProjectCharacter::VoiceChatOff()
 }
 
 #pragma endregion
-
-
-// 변수 복제로 값이 변경될 때마다 실행될 함수
-void ANetworkProjectCharacter::OnRep_JumpEffect()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Replicated Call Function!!"));
-	if (battleUI != nullptr)
-	{
-		battleUI->PlayHitAnimation();
-	}
-}
 
 #pragma region FireRPC
 
@@ -384,6 +376,17 @@ void ANetworkProjectCharacter::MulticastDieProcess_Implementation()
 	}
 }
 #pragma endregion
+
+// 변수 복제로 값이 변경될 때마다 실행될 함수
+void ANetworkProjectCharacter::OnRep_JumpEffect()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Replicated Call Function!!"));
+	if (battleUI != nullptr)
+	{
+		battleUI->PlayHitAnimation();
+	}
+}
+
 
 void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
