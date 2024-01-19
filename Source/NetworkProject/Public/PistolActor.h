@@ -29,8 +29,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "MySettings")
 	TSubclassOf<class ABulletActor> bullet_bp;
 
+	UPROPERTY(EditAnywhere, Category = "MySettings")
 	int32 ammo = 10;
+
+	UPROPERTY(EditAnywhere, Category = "MySettings")
 	float damagePower = 2.0f;
+
+	UPROPERTY(EditAnywhere, Category = "MySettings")
 	float attackDelay = 1.0f;
 
 	void ReleaseWeapon(class ANetworkProjectCharacter* player);

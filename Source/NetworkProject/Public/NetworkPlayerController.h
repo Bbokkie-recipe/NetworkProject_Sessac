@@ -7,11 +7,24 @@
 #include "NetworkPlayerController.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class NETWORKPROJECT_API ANetworkPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+protected:
+	virtual void BeginPlay() override;
+
+
+private:
+	class ANetworkGameModeBase* gm;
+
+public:
+	UFUNCTION(Server, unreliable)
+	void ChangeCharToSpectator();
+
+	UFUNCTION(Server, unreliable)
+	void ServerRespawnPlayer();
 };

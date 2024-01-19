@@ -38,10 +38,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintAssignable, Category = "MySettings")
 	FFindButtonStatus onFindButtonToggle;
 
-	void CreateSession(FString roomName, FString hostName, int32 playerCount);
-	void FindSession();
-	void JoinSession(int32 roomNumber);
-	void ExitSession();
+	void CreateMySession(FString roomName, FString hostName, int32 playerCount);
+	void FindMySession();
+	void JoinMySession(int32 roomNumber);
+	void ExitMySession();
 	void SetSessionName(FString name);
 	FORCEINLINE FString GetSessionName() { return mySessionName.ToString(); }
 

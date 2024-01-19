@@ -50,7 +50,7 @@ void ULoginWidget::OnClickedCreateButton()
 {
 	if (gi != nullptr)
 	{
-		gi->CreateSession(eText_roomName->GetText().ToString(), eText_hostName->GetText().ToString(), (int32)sl_maxPlayers->GetValue());
+		gi->CreateMySession(eText_roomName->GetText().ToString(), eText_hostName->GetText().ToString(), (int32)sl_maxPlayers->GetValue());
 	}
 }
 
@@ -74,7 +74,7 @@ void ULoginWidget::OnClickedMoveToFind()
 	ws_widgetSwitcher->SetActiveWidgetIndex(3);
 	if (gi != nullptr)
 	{
-		gi->FindSession();
+		gi->FindMySession();
 	}
 }
 
@@ -83,7 +83,7 @@ void ULoginWidget::OnClickedFindSessionsButton()
 	//btn_findSessions->SetIsEnabled(false);
 	if (gi != nullptr)
 	{
-		gi->FindSession();
+		gi->FindMySession();
 	}
 }
 

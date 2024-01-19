@@ -44,6 +44,9 @@ class ANetworkProjectCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* ia_Fire;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	UInputAction* ia_VoiceControl;
+
 public:
 	ANetworkProjectCharacter();
 	
@@ -124,6 +127,8 @@ private:
 	void JumpStart();
 	void ReleaseWeapon();
 	void Fire();
+	void VoiceChatOn();
+	void VoiceChatOff();
 	
 	UFUNCTION()
 	void OnRep_JumpEffect();

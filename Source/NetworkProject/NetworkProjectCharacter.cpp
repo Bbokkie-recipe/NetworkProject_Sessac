@@ -198,6 +198,8 @@ void ANetworkProjectCharacter::SetupPlayerInputComponent(UInputComponent* Player
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ANetworkProjectCharacter::Look);
 		EnhancedInputComponent->BindAction(ia_releaseWeapon, ETriggerEvent::Started, this, &ANetworkProjectCharacter::ReleaseWeapon);
 		EnhancedInputComponent->BindAction(ia_Fire, ETriggerEvent::Started, this, &ANetworkProjectCharacter::Fire);
+		EnhancedInputComponent->BindAction(ia_VoiceControl, ETriggerEvent::Started, this, &ANetworkProjectCharacter::VoiceChatOn);
+		EnhancedInputComponent->BindAction(ia_VoiceControl, ETriggerEvent::Completed, this, &ANetworkProjectCharacter::VoiceChatOff);
 	}
 	else
 	{
@@ -284,6 +286,33 @@ void ANetworkProjectCharacter::ReleaseWeapon()
 	}
 }
 
+#pragma region VoiceChat
+
+void ANetworkProjectCharacter::VoiceChatOn()
+{
+	pc->StartTalking();
+}
+
+void ANetworkProjectCharacter::VoiceChatOff()
+{
+	pc->StopTalking();
+	//pc->GetUniqueID()
+	//pc->ServerMutePlayer(0);
+}
+
+#pragma endregion
+
+
+// 변수 복제로 값이 변경될 때마다 실행될 함수
+void ANetworkProjectCharacter::OnRep_JumpEffect()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Replicated Call Function!!"));
+	if (battleUI != nullptr)
+	{
+		battleUI->PlayHitAnimation();
+	}
+}
+
 #pragma region FireRPC
 
 void ANetworkProjectCharacter::Fire()
@@ -296,17 +325,6 @@ void ANetworkProjectCharacter::Fire()
 		}
 	}
 }
-
-// 변수 복제로 값이 변경될 때마다 실행될 함수
-void ANetworkProjectCharacter::OnRep_JumpEffect()
-{
-	UE_LOG(LogTemp, Warning, TEXT("Replicated Call Function!!"));
-	if (battleUI != nullptr)
-	{
-		battleUI->PlayHitAnimation();
-	}
-}
-
 
 void ANetworkProjectCharacter::ServerFire_Implementation()
 {

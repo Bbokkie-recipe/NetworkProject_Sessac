@@ -33,7 +33,7 @@ void UNetworkGameInstance::Init()
 }
 
 // 서버에 세션 생성을 요청하는 함수
-void UNetworkGameInstance::CreateSession(FString roomName, FString hostName, int32 playerCount)
+void UNetworkGameInstance::CreateMySession(FString roomName, FString hostName, int32 playerCount)
 {
 	// 서버 생성 시의 옵션을 설정하기 위한 구조체 변수
 	FOnlineSessionSettings sessionSettings;
@@ -65,7 +65,7 @@ void UNetworkGameInstance::OnCreatedSession(FName sessionName, bool bWasSuccessf
 	GetWorld()->ServerTravel("/Game/Maps/BattleMap?Listen", true);
 }
 
-void UNetworkGameInstance::FindSession()
+void UNetworkGameInstance::FindMySession()
 {
 	onFindButtonToggle.Broadcast(false);
 
@@ -117,12 +117,12 @@ void UNetworkGameInstance::OnFoundSessions(bool bWasSuccessful)
 }
 
 
-void UNetworkGameInstance::JoinSession(int32 roomNumber)
+void UNetworkGameInstance::JoinMySession(int32 roomNumber)
 {
 	sessionInterface->JoinSession(0, mySessionName, sessionSearch->SearchResults[roomNumber]);
 }
 
-void UNetworkGameInstance::ExitSession()
+void UNetworkGameInstance::ExitMySession()
 {
 	sessionInterface->DestroySession(mySessionName);
 }
