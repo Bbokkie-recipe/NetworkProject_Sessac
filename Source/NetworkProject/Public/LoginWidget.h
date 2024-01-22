@@ -61,6 +61,12 @@ public:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
 	class UButton* btn_next;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
+	class UComboBoxString* cb_MeshSelect;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
+	class UComboBoxString* cb_ColorSelect;
+
 	UPROPERTY(EditAnywhere, Category="MySettings")
 	TSubclassOf<class USessionSlotWidget> slotWidget;
 
@@ -97,4 +103,10 @@ private:
 
 	UFUNCTION()
 	void SetUserNameAndNext();
+
+	UFUNCTION()
+	void SelectMesh(FString SelectedItem, ESelectInfo::Type SelectionType);
+
+	UFUNCTION()
+	void SelectColor(FString SelectedItem, ESelectInfo::Type SelectionType);
 };

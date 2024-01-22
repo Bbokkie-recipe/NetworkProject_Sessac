@@ -96,6 +96,10 @@ private:
 	FTimerHandle fireCooltime;
 	bool bIsDead = false;
 	class APlayerController* pc;
+	class UNetworkGameInstance* gi;
+
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"), category="MySettings")
+	TArray<FString> playerMeshes;
 
 	// 복제 변수
 	UPROPERTY(replicated)
@@ -119,6 +123,12 @@ private:
 	UPROPERTY(replicated)
 	int32 currentHealth = 0;
 
+	UPROPERTY(replicated)
+	int32 playerMeshNum = 0;
+
+	UPROPERTY(replicated)
+	FColor playerColor;
+
 	UPROPERTY(ReplicatedUsing = OnRep_JumpEffect)
 	int32 repJumpCount = 0;
 
@@ -129,6 +139,7 @@ private:
 	void Fire();
 	void VoiceChatOn();
 	void VoiceChatOff();
+	void ChangeMeshAndColor();
 	
 	UFUNCTION()
 	void OnRep_JumpEffect();
@@ -157,6 +168,9 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastDieProcess();
+
+	UFUNCTION(Server, Unreliable)
+	void ServerSetMeshAndColor(int32 meshNum, FColor meshColor);
 
 };
 

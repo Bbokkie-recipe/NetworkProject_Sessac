@@ -45,6 +45,10 @@ public:
 	void SetSessionName(FString name);
 	FORCEINLINE FString GetSessionName() { return mySessionName.ToString(); }
 
+	int32 meshNum = 0;
+	FColor meshColor;
+	//FLinearColor
+
 private:
 	FName mySessionName = FName("Sessac Session");
 	TSharedPtr<FOnlineSessionSearch> sessionSearch;

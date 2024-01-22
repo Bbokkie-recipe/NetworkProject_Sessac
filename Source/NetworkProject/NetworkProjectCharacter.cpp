@@ -16,6 +16,7 @@
 #include "Components/WidgetComponent.h"
 #include "PlayerInfoWidget.h"
 #include "Components/ProgressBar.h"
+#include "NetworkGameInstance.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -63,6 +64,7 @@ void ANetworkProjectCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	pc = GetController<APlayerController>();
+	gi = GetGameInstance<UNetworkGameInstance>();
 
 	if (pc != nullptr)
 	{
@@ -90,6 +92,16 @@ void ANetworkProjectCharacter::BeginPlay()
 	{
 		currentHealth = maxHealth;
 	}
+
+	if (gi != nullptr && GetController() && GetController()->IsLocalPlayerController())
+	{
+		//FColor fakeColor = FColor(0, 255, 0);
+		//ChangeMeshAndColor(gi->meshNum, gi->meshColor);
+		ServerSetMeshAndColor(gi->meshNum, gi->meshColor);
+	}
+
+	FTimerHandle ChangeHandler;
+	GetWorldTimerManager().SetTimer(ChangeHandler, this, &ANetworkProjectCharacter::ChangeMeshAndColor, 0.5f, false);
 }
 
 void ANetworkProjectCharacter::Tick(float DeltaSeconds)
@@ -388,6 +400,39 @@ void ANetworkProjectCharacter::OnRep_JumpEffect()
 }
 
 
+void ANetworkProjectCharacter::ChangeMeshAndColor()
+{
+	// runtime에 특정 경로에 있는 에셋을 메모리에 로드하기(인스턴스화)
+	USkeletalMesh* selectedMesh = LoadObject<USkeletalMesh>(NULL, *playerMeshes[playerMeshNum], NULL, LOAD_None, NULL);
+	if(selectedMesh != nullptr)
+	{
+		// 현재 메시에 로드한 메시를 설정한다.
+		GetMesh()->SetSkeletalMesh(selectedMesh);
+	}
+
+	// 기존 머티리얼을 가져오기
+	UMaterialInterface* mat_0 = GetMesh()->GetMaterial(0);
+	UMaterialInterface* mat_1 = GetMesh()->GetMaterial(1);
+
+	// 다이나믹 인스턴스 머티리얼로 변환하기
+	UMaterialInstanceDynamic* mat_inst_0 = UMaterialInstanceDynamic::Create(mat_0, this);
+	UMaterialInstanceDynamic* mat_inst_1 = UMaterialInstanceDynamic::Create(mat_1, this);
+
+	// 머티리얼의 벡터 변수 값을 매개변수의 컬러 값으로 변경한다.
+	mat_inst_0->SetVectorParameterValue(FName("playerColor"), (FLinearColor)playerColor);
+	mat_inst_1->SetVectorParameterValue(FName("playerColor"), (FLinearColor)playerColor);
+
+	GetMesh()->SetMaterial(0, mat_inst_0);
+	GetMesh()->SetMaterial(1, mat_inst_1);
+}
+
+void ANetworkProjectCharacter::ServerSetMeshAndColor_Implementation(int32 meshNum, FColor meshColor)
+{
+	playerMeshNum = meshNum;
+	playerColor = meshColor;
+}
+
+
 void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -401,4 +446,8 @@ void ANetworkProjectCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProper
 	DOREPLIFETIME(ANetworkProjectCharacter, m_attackDelay);
 	DOREPLIFETIME(ANetworkProjectCharacter, currentHealth);
 	DOREPLIFETIME(ANetworkProjectCharacter, repJumpCount);
+	DOREPLIFETIME(ANetworkProjectCharacter, playerMeshNum);
+	DOREPLIFETIME(ANetworkProjectCharacter, playerColor);
 }
+
+

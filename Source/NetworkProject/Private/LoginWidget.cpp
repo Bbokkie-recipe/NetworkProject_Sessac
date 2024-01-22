@@ -10,6 +10,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "SessionSlotWidget.h"
 #include "Components/ScrollBox.h"
+#include "Components/ComboBoxString.h"
 
 
 void ULoginWidget::NativeConstruct()
@@ -30,6 +31,8 @@ void ULoginWidget::NativeConstruct()
 	btn_back2->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedBackButton);
 	btn_findSessions->OnClicked.AddDynamic(this, &ULoginWidget::OnClickedFindSessionsButton);
 	btn_next->OnClicked.AddDynamic(this, &ULoginWidget::SetUserNameAndNext);
+	cb_MeshSelect->OnSelectionChanged.AddDynamic(this, &ULoginWidget::SelectMesh);
+	cb_ColorSelect->OnSelectionChanged.AddDynamic(this, &ULoginWidget::SelectColor);
 
 	gi = GetGameInstance<UNetworkGameInstance>();
 
@@ -116,5 +119,54 @@ void ULoginWidget::SetUserNameAndNext()
 	// 게임 인스턴스에 입력한 이름을 저장한다.
 	gi->SetSessionName(editText_userName->GetText().ToString());
 
-	ws_widgetSwitcher->SetActiveWidgetIndex(1);
+	if (cb_ColorSelect->GetSelectedOption().IsEmpty() || cb_MeshSelect->GetSelectedOption().IsEmpty())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("You have to Selected Options!"))
+	}
+	else
+	{
+		ws_widgetSwitcher->SetActiveWidgetIndex(1);
+	}
+}
+
+void ULoginWidget::SelectMesh(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (gi != nullptr)
+	{
+		if (SelectedItem.Contains(FString("Manny")))
+		{
+			gi->meshNum = 0;
+		}
+		else if (SelectedItem.Equals(FString("Quinn")))
+		{
+			gi->meshNum = 1;
+		}
+		else if (SelectedItem == FString("Manequin"))
+		{
+			gi->meshNum = 2;
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("User Selected Mesh: %s"), *SelectedItem);
+	}
+}
+
+void ULoginWidget::SelectColor(FString SelectedItem, ESelectInfo::Type SelectionType)
+{
+	if (gi != nullptr)
+	{
+		if (SelectedItem.Contains(FString("Red")))
+		{
+			gi->meshColor = FColor(255, 0, 0);
+		}
+		else if (SelectedItem.Equals(FString("Green")))
+		{
+			gi->meshColor = FColor(0, 255, 0);
+		}
+		else if (SelectedItem == FString("Blue"))
+		{
+			gi->meshColor = FColor(0, 0, 255);
+		}
+
+		UE_LOG(LogTemp, Warning, TEXT("User Selected Color: %s"), *SelectedItem);
+	}
 }
