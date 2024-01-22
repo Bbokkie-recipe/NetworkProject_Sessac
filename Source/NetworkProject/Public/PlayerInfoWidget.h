@@ -18,5 +18,6 @@ public:
 	UPROPERTY(VisibleAnywhere, meta=(BindWidget), Category="MySettings")
 	class UProgressBar* pb_health;
 
-	
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "MySettings")
+	class UTextBlock* text_name;
 };

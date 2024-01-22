@@ -17,6 +17,8 @@
 #include "PlayerInfoWidget.h"
 #include "Components/ProgressBar.h"
 #include "NetworkGameInstance.h"
+#include "NetPlayerState.h"
+#include "Components/TextBlock.h"
 
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
@@ -117,7 +119,7 @@ void ANetworkProjectCharacter::Tick(float DeltaSeconds)
 	}
 
 	// 죽음 상태 체크
-	if (!bIsDead &&  currentHealth <= 0)
+	if (!bIsDead && currentHealth <= 0)
 	{
 		bIsDead = true;
 		ServerDieProcess();
@@ -223,7 +225,7 @@ void ANetworkProjectCharacter::Move(const FInputActionValue& Value)
 {
 	//if(bIsDead) return;
 
- 	FVector2D MovementVector = Value.Get<FVector2D>();
+	FVector2D MovementVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
 	{
@@ -370,12 +372,12 @@ void ANetworkProjectCharacter::MulticastDieProcess_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	if (pc != nullptr && pc->IsLocalPlayerController())
 	{
 		FTimerHandle dieEffectHandler;
 		GetWorldTimerManager().SetTimer(dieEffectHandler, FTimerDelegate::CreateLambda([&]() {
-			
+
 			// 세션 나가기 버튼을 화면에 표시한다.
 			battleUI->ShowButtons();
 			pc->SetShowMouseCursor(true);
@@ -384,7 +386,7 @@ void ANetworkProjectCharacter::MulticastDieProcess_Implementation()
 			// 화면을 흑백으로 후 처리한다.
 			FollowCamera->PostProcessSettings.ColorSaturation = FVector4(0, 0, 0, 0.5f);
 			}), 1.1f, false);
-		
+
 	}
 }
 #pragma endregion
@@ -404,7 +406,7 @@ void ANetworkProjectCharacter::ChangeMeshAndColor()
 {
 	// runtime에 특정 경로에 있는 에셋을 메모리에 로드하기(인스턴스화)
 	USkeletalMesh* selectedMesh = LoadObject<USkeletalMesh>(NULL, *playerMeshes[playerMeshNum], NULL, LOAD_None, NULL);
-	if(selectedMesh != nullptr)
+	if (selectedMesh != nullptr)
 	{
 		// 현재 메시에 로드한 메시를 설정한다.
 		GetMesh()->SetSkeletalMesh(selectedMesh);
@@ -424,6 +426,17 @@ void ANetworkProjectCharacter::ChangeMeshAndColor()
 
 	GetMesh()->SetMaterial(0, mat_inst_0);
 	GetMesh()->SetMaterial(1, mat_inst_1);
+
+	if (info_UI != nullptr)
+	{
+		FString myName = GetPlayerState<ANetPlayerState>()->GetPlayerName();
+		info_UI->text_name->SetText(FText::FromString(myName));
+
+		if (GetController() && GetController()->IsLocalPlayerController())
+		{
+			info_UI->text_name->SetColorAndOpacity(FSlateColor(FColor::Magenta));
+		}
+	}
 }
 
 void ANetworkProjectCharacter::ServerSetMeshAndColor_Implementation(int32 meshNum, FColor meshColor)
